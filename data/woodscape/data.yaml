@@ -1,0 +1,10 @@
+names:
+  - person
+  - traffic light
+  - traffic sign
+  - car
+  - truck
+nc: 5
+test: /kaggle/input/sample-woodscape-20-images/woodscape/rgb_images
+train: /kaggle/input/sample-woodscape-20-images/woodscape/rgb_images
+val: /kaggle/input/sample-woodscape-20-images/woodscape/rgb_images

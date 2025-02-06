@@ -5,6 +5,10 @@ import sys
 from pathlib import Path
 
 import numpy as np
+
+from rectify_conv.util import convert_to_rectconv, generate_offset
+from rectify_conv.projection import read_cam_from_json
+
 import torch
 from tqdm import tqdm
 
@@ -105,6 +109,10 @@ def run(
         callbacks=Callbacks(),
         compute_loss=None,
 ):
+    fisheye_cam = read_cam_from_json("./rectify_conv/" + "ES" + ".json")
+    offset = generate_offset(fisheye_cam)
+    print("offset shape: ", offset.shape)
+
     # Initialize/load model and set device
     training = model is not None
     if training:  # called by train.py
@@ -137,7 +145,7 @@ def run(
     # Configure
     model.eval()
     cuda = device.type != 'cpu'
-    #is_coco = isinstance(data.get('val'), str) and data['val'].endswith(f'coco{os.sep}val2017.txt')  # COCO dataset
+    # is_coco = isinstance(data.get('val'), str) and data['val'].endswith(f'coco{os.sep}val2017.txt')  # COCO dataset
     is_coco = isinstance(data.get('val'), str) and data['val'].endswith(f'val2017.txt')  # COCO dataset
     nc = 1 if single_cls else int(data['nc'])  # number of classes
     iouv = torch.linspace(0.5, 0.95, 10, device=device)  # iou vector for mAP@0.5:0.95
@@ -176,6 +184,9 @@ def run(
     jdict, stats, ap, ap_class = [], [], [], []
     callbacks.run('on_val_start')
     pbar = tqdm(dataloader, desc=s, bar_format=TQDM_BAR_FORMAT)  # progress bar
+
+    convert_to_rectconv(model, offset)
+
     for batch_i, (im, targets, paths, shapes) in enumerate(pbar):
         callbacks.run('on_val_batch_start')
         with dt[0]:
@@ -193,8 +204,8 @@ def run(
         # Loss
         if compute_loss:
             preds = preds[1]
-            #train_out = train_out[1]
-            #loss += compute_loss(train_out, targets)[1]  # box, obj, cls
+            # train_out = train_out[1]
+            # loss += compute_loss(train_out, targets)[1]  # box, obj, cls
         else:
             preds = preds[0][1]
 
