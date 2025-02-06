@@ -1,0 +1,10 @@
+names:
+  - Bus
+  - Bike
+  - Car
+  - Pedestrian
+  - Truck
+nc: 5
+test: /kaggle/input/fisheye8k/Fisheye8K/test/images
+train: /kaggle/input/fisheye8k/Fisheye8K/train/images
+val: /kaggle/input/fisheye8k/Fisheye8K/test/images
